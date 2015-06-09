@@ -650,6 +650,7 @@ mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
 	-rm -f *.d
 	-rm -f *.raw
+	-rm -f *.exe
 
 
 
@@ -850,7 +851,7 @@ maintainer-clean-generic:
 	@echo "it deletes files that may require special tools to rebuild."
 clean: clean-am
 
-clean-am: clean-binPROGRAMS clean-generic mostlyclean-am
+clean-am: clean-generic mostlyclean-am
 
 dvi: dvi-am
 
