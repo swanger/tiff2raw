@@ -651,6 +651,8 @@ mostlyclean-compile:
 	-rm -f *.d
 	-rm -f *.raw
 	-rm -f *.exe
+	-rm -f temp_bw.tif
+	-rm -f temp_bw_01.tif
 
 
 

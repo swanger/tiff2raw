@@ -492,10 +492,12 @@ phase2:
     TIFFClose(in);
     fclose(fp);
 
+#if 0
     if(remove("temp_bw.tif"))   
         printf("Remove Error\n");   
     if(remove("temp_bw_01.tif"))   
         printf("Remove Error\n");   
+#endif
 
     return (0);
 }
@@ -1110,7 +1112,11 @@ static void TIFFReadContigStripData(TIFF* tif)
         TIFFGetField(tif, TIFFTAG_IMAGELENGTH, &h);
 		TIFFGetField(tif, TIFFTAG_ROWSPERSTRIP, &rowsperstrip);
 
-        fprintf(stderr,"w:%d, h:%d\n",((w/32)+1)*32,h);
+        if(w%32)
+            fprintf(stderr,"w:%d, h:%d\n",w,h);
+        else
+            fprintf(stderr,"w:%d, h:%d\n",((w/32)+1)*32,h);
+
         fprintf(stderr,"scanline = %d\n",(int)scanline);
 
 		for (row = 0; row < h; row += rowsperstrip) 
