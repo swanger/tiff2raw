@@ -263,7 +263,7 @@ int main( int argc, char* argv[] )
         }
 #endif
 
-        char str[80] = {0};
+        char str[300] = {0};
         strcat(str,"cp ");
         strcat(str,argv[optind]);
         strcat(str," temp_bw.tif");
@@ -281,9 +281,9 @@ int main( int argc, char* argv[] )
 	TIFFGetField(in, TIFFTAG_BITSPERSAMPLE, &bitspersample);
 	if (bitspersample != 8) 
     {
-		fprintf(stderr," %s: Sorry, only handle 8-bit samples.\n", argv[optind]);
-		return (-1);
-	}
+        fprintf(stderr," %s: Sorry, only handle 8-bit samples and 1-bit samples.\n", argv[optind]);
+        return (-1);
+    }
 
 	TIFFGetField(in, TIFFTAG_IMAGEWIDTH, &w);
 	TIFFGetField(in, TIFFTAG_IMAGELENGTH, &h);
@@ -405,6 +405,26 @@ phase2:
 	if (in == NULL)
 		return (-1);
 
+
+	TIFFGetField(in, TIFFTAG_BITSPERSAMPLE, &bitspersample);
+	if (bitspersample != 8) 
+    {
+        if(bitspersample == 1)
+        {
+            char str[300] = {0};
+            strcat(str,"cp ");
+            strcat(str,"temp_bw.tif");
+            strcat(str," temp_bw_01.tif");
+            system(str);
+            goto phase3;
+        }
+        else
+        {
+            fprintf(stderr," %s: Sorry, only handle 8-bit samples and 1-bit samples.\n", argv[optind]);
+            return (-1);
+        }
+	}
+
     out = TIFFOpen("temp_bw_01.tif","w");
 	if (out == NULL)
 		return (-1);
@@ -432,8 +452,9 @@ phase2:
 
 	fsdither(in, out);
 
-	TIFFClose(in);
 	TIFFClose(out);
+phase3:
+	TIFFClose(in);
 
     // ------------------------------------------------------------------ 
     // Desc: Third Step: Convert 1 bit black and white tiff to raw format
@@ -492,12 +513,10 @@ phase2:
     TIFFClose(in);
     fclose(fp);
 
-#if 0
     if(remove("temp_bw.tif"))   
         printf("Remove Error\n");   
     if(remove("temp_bw_01.tif"))   
         printf("Remove Error\n");   
-#endif
 
     return (0);
 }
@@ -1112,7 +1131,7 @@ static void TIFFReadContigStripData(TIFF* tif)
         TIFFGetField(tif, TIFFTAG_IMAGELENGTH, &h);
 		TIFFGetField(tif, TIFFTAG_ROWSPERSTRIP, &rowsperstrip);
 
-        if(w%32)
+        if(w%32 == 0)
             fprintf(stderr,"w:%d, h:%d\n",w,h);
         else
             fprintf(stderr,"w:%d, h:%d\n",((w/32)+1)*32,h);
@@ -1225,7 +1244,11 @@ static void TIFFReadSeparateStripData(TIFF* tif)
 		TIFFGetField(tif, TIFFTAG_ROWSPERSTRIP, &rowsperstrip);
 		TIFFGetField(tif, TIFFTAG_SAMPLESPERPIXEL, &samplesperpixel);
 
-        fprintf(stderr,"w:%d, h:%d\n",((w/32)+1)*32,h);
+        if(w%32 == 0)
+            fprintf(stderr,"w:%d, h:%d\n",w,h);
+        else
+            fprintf(stderr,"w:%d, h:%d\n",((w/32)+1)*32,h);
+
         fprintf(stderr,"scanline = %d\n",(int)scanline);
 
         for (row = 0; row < h; row += rowsperstrip) 
