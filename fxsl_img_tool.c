@@ -183,7 +183,7 @@ int main( int argc, char* argv[] )
 	int c;
 
 	extern int optind;
-	extern char *optarg;
+	// extern char *optarg;
 
 	uint16 fillorder = 0;
 	uint16 shortv;
@@ -193,17 +193,17 @@ int main( int argc, char* argv[] )
 	long flags = 0;
 	uint64 diroff = 0;
 
-    while ((c = getopt(argc, argv, "c:i")) != -1)
+
+    showdata++;
+    readdata++;
+    if (!processCompressOptions("none"))
+    {
+        usage();
+    }
+
+    while ((c = getopt(argc, argv, "i")) != -1)
         switch (c)
         {
-        case 'c':		/* compression scheme */
-            showdata++;
-			readdata++;
-            if (!processCompressOptions(optarg))
-            {
-                usage();
-            }
-            break;
         case 'i':
             reversedflag++;
             break;
@@ -868,8 +868,7 @@ static void tiffinfo(TIFF* tif, uint16 order, long flags, int is_image)
 		if (order) 
         {
 			uint16 o;
-			TIFFGetFieldDefaulted(tif,
-			    TIFFTAG_FILLORDER, &o);
+			TIFFGetFieldDefaulted(tif,TIFFTAG_FILLORDER, &o);
 			TIFFReadRawData(tif, o != order);
 		} 
         else
