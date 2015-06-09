@@ -236,8 +236,7 @@ int main( int argc, char* argv[] )
 		// fprintf(stderr,"%s: Bad photometric; can only handle RGB and Palette images.\n",argv[optind]);
 		// return (-1);
 
-#if 0
-	    TIFFClose(in);
+#if 1
         {
             FILE *fpSrc, *fpDest;
             fpSrc = fopen(argv[optind], "rb");   
@@ -261,13 +260,15 @@ int main( int argc, char* argv[] )
             fclose(fpSrc); 
             fclose(fpDest);
         }
-#endif
+#else
 
         char str[300] = {0};
         strcat(str,"cp ");
         strcat(str,argv[optind]);
         strcat(str," temp_bw.tif");
         system(str);
+
+#endif
         goto phase2;
 	}
 
@@ -318,7 +319,7 @@ int main( int argc, char* argv[] )
         }
     }
 
-	TIFFSetField(out, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_MINISBLACK);
+	TIFFSetField(out, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_MINISWHITE);
 
 	sprintf(thing, "B&W version of %s", argv[optind]);
 
@@ -411,11 +412,39 @@ phase2:
     {
         if(bitspersample == 1)
         {
+#if 1
+            {
+                FILE *fpSrc, *fpDest;
+                fpSrc = fopen("temp_bw.tif", "rb");   
+                if(fpSrc==NULL)
+                {
+                    printf( "Source file open failure.");
+                    return 0;
+                }
+
+                fpDest = fopen("temp_bw_01.tif", "wb+"); 
+
+                if(fpDest==NULL)
+                {
+                    printf("Destination file open failure.");
+                    return 0;
+                }
+                while((c=fgetc(fpSrc))!=EOF)
+                {   
+                    fputc(c, fpDest);
+                }
+                fclose(fpSrc); 
+                fclose(fpDest);
+            }
+
+#else
             char str[300] = {0};
             strcat(str,"cp ");
             strcat(str,"temp_bw.tif");
             strcat(str," temp_bw_01.tif");
             system(str);
+
+#endif
             goto phase3;
         }
         else
